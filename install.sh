@@ -8,13 +8,13 @@ sudo apt-get install -y libcurl4-openssl-dev libssl-dev jq ruby-full libxml2 lib
 if ! command -v go &> /dev/null; then
     echo "Installing Go..."
     wget https://dl.google.com/go/go1.21.0.linux-amd64.tar.gz
-    tar -xvf go1.21.0.linux-amd64.tar.gz
-    chmod +x go/bin/go
-    sudo mv go/bin/go /usr/local/bin/go
-    export GOROOT=/usr/local/go
+    sudo tar -xvf go1.21.0.linux-amd64.tar.gz
+    sudo mv go /usr/local/bin/go
+    sudo chmod +x /usr/local/bin/go
+    export GOROOT=/usr/local/bin/go
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-    echo 'export GOROOT=/usr/local/go' >> ~/.bashrc
+    echo 'export GOROOT=/usr/local/bin/go' >> ~/.bashrc
     echo 'export GOPATH=$HOME/go' >> ~/.bashrc
     echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >> ~/.bashrc
     source ~/.bashrc
@@ -26,12 +26,12 @@ fi
 mkdir -p ~/tools
 cd ~/tools
 
-# Function to check and install tools
+# Install tools
 install_tool() {
     local name=$1
     local repo=$2
+    echo "Installing $name..."
     if [ ! -d "$name" ]; then
-        echo "Installing $name..."
         git clone $repo
         echo "$name installed."
     else
@@ -39,13 +39,12 @@ install_tool() {
     fi
 }
 
-# Install tools
 install_tool "Aquatone" "https://github.com/michenriksen/aquatone.git"
 install_tool "JSParser" "https://github.com/nahamsec/JSParser.git"
-cd JSParser && sudo python3 setup.py install && cd ~/tools
+cd JSParser && python3 -m venv env && source env/bin/activate && sudo python3 setup.py install && deactivate && cd ~/tools
 
 install_tool "Sublist3r" "https://github.com/aboul3la/Sublist3r.git"
-cd Sublist3r && pip3 install -r requirements.txt && cd ~/tools
+cd Sublist3r && python3 -m venv env && source env/bin/activate && pip install -r requirements.txt && deactivate && cd ~/tools
 
 install_tool "wpscan" "https://github.com/wpscanteam/wpscan.git"
 cd wpscan && sudo gem install bundler && bundle install --without test && cd ~/tools
@@ -60,7 +59,7 @@ install_tool "massdns" "https://github.com/blechschmidt/massdns.git"
 cd massdns && make && cd ~/tools
 
 install_tool "asnlookup" "https://github.com/yassineaboukir/asnlookup.git"
-cd asnlookup && pip3 install -r requirements.txt && cd ~/tools
+cd asnlookup && python3 -m venv env && source env/bin/activate && pip install -r requirements.txt && deactivate && cd ~/tools
 
 # Install Go-based tools
 if ! command -v httprobe &> /dev/null; then
